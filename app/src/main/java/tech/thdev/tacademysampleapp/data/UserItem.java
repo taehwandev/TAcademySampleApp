@@ -2,7 +2,7 @@ package tech.thdev.tacademysampleapp.data;
 
 import com.google.gson.annotations.SerializedName;
 
-public class GithubUserItem {
+public class UserItem {
 
     @SerializedName("login")
     private String login;
@@ -11,7 +11,7 @@ public class GithubUserItem {
     @SerializedName("avatar_url")
     private String avatarUrl;
 
-    public GithubUserItem(String login, int id, String avatarUrl) {
+    public UserItem(String login, int id, String avatarUrl) {
         this.login = login;
         this.id = id;
         this.avatarUrl = avatarUrl;

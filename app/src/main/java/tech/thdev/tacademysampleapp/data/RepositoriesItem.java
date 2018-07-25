@@ -11,7 +11,7 @@ public class RepositoriesItem {
     @SerializedName("full_name")
     private String fullName;
     @SerializedName("owner")
-    private GithubUserItem owner;
+    private UserItem owner;
     @SerializedName("html_url")
     private String htmlUrl;
     @SerializedName("description")
@@ -37,7 +37,7 @@ public class RepositoriesItem {
         return fullName;
     }
 
-    public GithubUserItem getOwner() {
+    public UserItem getOwner() {
         return owner;
     }
 
