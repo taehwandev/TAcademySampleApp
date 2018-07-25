@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_license"
+        android:icon="@drawable/ic_license_symbol"
+        android:title="@string/title_license" />
+</menu>
