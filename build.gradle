@@ -24,6 +24,7 @@ buildscript {
         rxAndroidVersion = '2.0.2'
 
         glideVersion = '4.7.1'
+        butterknifeVersion = '8.8.1'
     }
 
     repositories {

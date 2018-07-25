@@ -7,18 +7,23 @@ import android.view.ViewGroup;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
+import tech.thdev.tacademysampleapp.base.adapter.holder.AndroidViewHolder;
 import tech.thdev.tacademysampleapp.base.adapter.holder.BaseViewHolder;
 import tech.thdev.tacademysampleapp.base.adapter.viewmodel.BaseAdapterViewModel;
 
-public abstract class BaseRecyclerViewAdapter<VIEW_MODEL extends BaseAdapterViewModel> extends RecyclerView.Adapter<BaseViewHolder<Object, VIEW_MODEL>> {
+public abstract class BaseRecyclerViewAdapter<VIEW_MODEL extends BaseAdapterViewModel> extends RecyclerView.Adapter<AndroidViewHolder> {
 
-    VIEW_MODEL viewModel;
+    private VIEW_MODEL viewModel;
 
     public BaseRecyclerViewAdapter(@NonNull VIEW_MODEL viewModel) {
         super();
         this.viewModel = viewModel;
 
         init();
+    }
+
+    public VIEW_MODEL getViewModel() {
+        return viewModel;
     }
 
     /**
@@ -44,15 +49,21 @@ public abstract class BaseRecyclerViewAdapter<VIEW_MODEL extends BaseAdapterView
 
     @NonNull
     @Override
-    public BaseViewHolder<Object, VIEW_MODEL> onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return createViewHolder(viewType, parent);
+    public AndroidViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        AndroidViewHolder viewHolder = createViewHolder(viewType, parent);
+        if (viewHolder instanceof BaseViewHolder) {
+            ((BaseViewHolder) viewHolder).setViewModel(viewModel);
+        }
+        return viewHolder;
     }
 
-    protected abstract BaseViewHolder<Object, VIEW_MODEL> createViewHolder(int viewType, @NonNull ViewGroup parent);
+    protected abstract AndroidViewHolder createViewHolder(int viewType, @NonNull ViewGroup parent);
 
     @Override
-    public void onBindViewHolder(@NonNull BaseViewHolder<Object, VIEW_MODEL> holder, int position) {
-        holder.checkItemAndBindViewHolder(viewModel.getAdapterRepository().getItem(position));
+    public void onBindViewHolder(@NonNull AndroidViewHolder holder, int position) {
+        if (holder instanceof BaseViewHolder) {
+            ((BaseViewHolder) holder).checkItemAndBindViewHolder(viewModel.getAdapterRepository().getItem(position));
+        }
     }
 
     @Override

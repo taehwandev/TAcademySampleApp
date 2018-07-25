@@ -17,7 +17,7 @@ public interface GitHubService {
      * @param page : now page. start 1
      * @param perPage : per page 100
      */
-    @GET("/search/users?")
+    @GET("/search/repositories?")
     Single<Repositories> searchUser(
             @Query(value = "q", encoded = true) String userKeyword,
             @Query("sort") String sort,

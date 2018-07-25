@@ -25,6 +25,22 @@ public class RepositoriesItem {
     @SerializedName("license")
     private License license;
 
+    public RepositoriesItem(int id, String name, String fullName,
+                            UserItem owner, String htmlUrl,
+                            String description, int stargazersCount, int forksCount,
+                            String language, License license) {
+        this.id = id;
+        this.name = name;
+        this.fullName = fullName;
+        this.owner = owner;
+        this.htmlUrl = htmlUrl;
+        this.description = description;
+        this.stargazersCount = stargazersCount;
+        this.forksCount = forksCount;
+        this.language = language;
+        this.license = license;
+    }
+
     public int getId() {
         return id;
     }
@@ -59,5 +75,9 @@ public class RepositoriesItem {
 
     public int getForksCount() {
         return forksCount;
+    }
+
+    public License getLicense() {
+        return license;
     }
 }

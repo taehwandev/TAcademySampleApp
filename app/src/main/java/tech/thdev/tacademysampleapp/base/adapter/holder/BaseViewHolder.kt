@@ -2,15 +2,20 @@ package tech.thdev.tacademysampleapp.base.adapter.holder
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import tech.thdev.tacademysampleapp.base.adapter.viewmodel.BaseAdapterViewModel
 
 @Suppress("UNCHECKED_CAST")
-abstract class BaseViewHolder<in ITEM : Any, VIEW_MODEL : BaseAdapterViewModel>(
-        layoutRes: Int,
-        parent: ViewGroup,
-        protected val context: Context = parent.context) : AndroidViewHolder(
-        LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)) {
+abstract class BaseViewHolder<in ITEM : Any, VIEW_MODEL : BaseAdapterViewModel> @JvmOverloads constructor(
+        itemView: View,
+        protected val context: Context = itemView.context) : AndroidViewHolder(
+        itemView) {
+
+    constructor(
+            layoutRes: Int,
+            parent: ViewGroup) : this(
+            LayoutInflater.from(parent.context).inflate(layoutRes, parent, false), parent.context)
 
     private lateinit var _viewModel: VIEW_MODEL
 
