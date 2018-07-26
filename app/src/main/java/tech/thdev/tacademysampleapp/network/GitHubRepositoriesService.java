@@ -5,7 +5,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 import tech.thdev.tacademysampleapp.data.Repositories;
 
-public interface GitHubService {
+public interface GitHubRepositoriesService {
 
     /**
      * Github search repositories

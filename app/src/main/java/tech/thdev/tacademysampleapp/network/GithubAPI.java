@@ -4,10 +4,10 @@ import tech.thdev.tacademysampleapp.contract.Contract;
 
 public class GithubAPI {
 
-    private GitHubService gitHubService;
+    private GitHubRepositoriesService gitHubRepositoriesService;
 
     private GithubAPI() {
-        gitHubService = RetrofitCreator.createRetrofit(Contract.API, GitHubService.class);
+        gitHubRepositoriesService = RetrofitCreator.createRetrofit(Contract.API, GitHubRepositoriesService.class);
     }
 
     private static GithubAPI instance;
@@ -23,7 +23,7 @@ public class GithubAPI {
         return instance;
     }
 
-    public GitHubService getGithubService() {
-        return gitHubService;
+    public GitHubRepositoriesService getGithubService() {
+        return gitHubRepositoriesService;
     }
 }

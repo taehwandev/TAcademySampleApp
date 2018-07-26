@@ -13,12 +13,11 @@ import android.view.MenuItem;
 
 import tech.thdev.tacademysampleapp.R;
 import tech.thdev.tacademysampleapp.view.main.search.SearchFragment;
-import tech.thdev.tacademysampleapp.view.main.user.UserFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private SearchFragment searchFragment;
-    private UserFragment userFragment;
+    private SearchFragment userSearchFragment;
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
 
                 case R.id.navigation_user_info:
-                    loadFragment(userFragment);
+                    loadFragment(userSearchFragment);
                     return true;
             }
             return false;
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         searchFragment = new SearchFragment();
-        userFragment = new UserFragment();
+        userSearchFragment = new SearchFragment();
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
