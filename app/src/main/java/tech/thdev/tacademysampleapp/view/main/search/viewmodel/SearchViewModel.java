@@ -8,6 +8,8 @@ import java.util.List;
 
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.util.AppendOnlyLinkedArrayList;
@@ -33,6 +35,7 @@ public class SearchViewModel extends BaseLifecycleViewModel {
     private final BehaviorSubject<String> searchSubject = BehaviorSubject.create();
     public final BehaviorSubject<Boolean> showEmptyViewSubject = BehaviorSubject.create();
     public final BehaviorSubject<String> showDetailPageViewSubject = BehaviorSubject.create();
+    public final BehaviorSubject<Boolean> updateProgressSubject = BehaviorSubject.create();
 
     public SearchViewModel(SearchRepository searchRepository, SearchAdapterViewModel searchAdapterViewModel) {
         super();
@@ -81,6 +84,18 @@ public class SearchViewModel extends BaseLifecycleViewModel {
                             showEmptyViewSubject.onNext(true);
                         }
                         return repositoriesItems.size() > 0;
+                    }
+                })
+                .doOnSubscribe(new Consumer<Disposable>() {
+                    @Override
+                    public void accept(Disposable disposable) throws Exception {
+                        updateProgressSubject.onNext(true);
+                    }
+                })
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        updateProgressSubject.onNext(false);
                     }
                 })
                 .subscribe(new Consumer<List<RepositoriesItem>>() {

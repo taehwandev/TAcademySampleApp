@@ -2,61 +2,79 @@ package tech.thdev.tacademysampleapp.view.main;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import kotlin.jvm.functions.Function0;
 import tech.thdev.tacademysampleapp.R;
-import tech.thdev.tacademysampleapp.view.main.search.SearchFragment;
-import tech.thdev.tacademysampleapp.view.main.user.UserFragment;
+import tech.thdev.tacademysampleapp.util.LifecycleExtensionsUtilKt;
+import tech.thdev.tacademysampleapp.view.main.pager.GithubViewPager;
+import tech.thdev.tacademysampleapp.view.main.viewmodel.UserSearchViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SearchFragment searchFragment;
-    private UserFragment userFragment;
+    @BindView(R.id.view_pager)
+    ViewPager viewPager;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_search:
-                    loadFragment(searchFragment);
-                    return true;
+    private GithubViewPager githubViewPager;
 
-                case R.id.navigation_user_info:
-                    loadFragment(userFragment);
-                    return true;
-            }
-            return false;
-        }
-    };
+    private UserSearchViewModel userSearchViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        searchFragment = new SearchFragment();
-        userFragment = new UserFragment();
+        userSearchViewModel = LifecycleExtensionsUtilKt.inject(UserSearchViewModel.class, this, "", new Function0<UserSearchViewModel>() {
+            @Override
+            public UserSearchViewModel invoke() {
+                return new UserSearchViewModel();
+            }
+        });
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        githubViewPager = new GithubViewPager(getSupportFragmentManager());
 
-        loadFragment(searchFragment);
-    }
-
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, fragment).commit();
+        viewPager.setAdapter(githubViewPager);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_icon_made_by, menu);
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+
+        MenuItem item = menu.findItem(R.id.action_search);
+        SearchView searchView = new SearchView(this.getSupportActionBar().getThemedContext());
+        MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        MenuItemCompat.setActionView(item, searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                userSearchViewModel.updateSearch(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                userSearchViewModel.updateSearch("");
+                return false;
+            }
+        });
         return false;
     }
 

@@ -4,39 +4,44 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import kotlin.jvm.functions.Function0;
 import tech.thdev.tacademysampleapp.R;
 import tech.thdev.tacademysampleapp.data.source.repositories.SearchRepository;
 import tech.thdev.tacademysampleapp.network.GithubAPI;
 import tech.thdev.tacademysampleapp.util.LifecycleExtensionsUtilKt;
-import tech.thdev.tacademysampleapp.view.main.MainActivity;
 import tech.thdev.tacademysampleapp.view.main.search.adapter.SearchRecyclerAdapter;
 import tech.thdev.tacademysampleapp.view.main.search.viewmodel.SearchViewModel;
+import tech.thdev.tacademysampleapp.view.main.viewmodel.UserSearchViewModel;
 
 public class SearchFragment extends Fragment {
 
     private SearchViewModel searchViewModel;
+    private UserSearchViewModel userSearchViewModel;
     private SearchRecyclerAdapter searchRecyclerAdapter;
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+
+    @BindView(R.id.group_progress)
+    Group groupProgress;
+
+    @BindView(R.id.tv_message)
+    TextView tvMessage;
 
     @Nullable
     @Override
@@ -60,6 +65,13 @@ public class SearchFragment extends Fragment {
             }
         });
 
+        userSearchViewModel = LifecycleExtensionsUtilKt.inject(UserSearchViewModel.class, this, "", new Function0<UserSearchViewModel>() {
+            @Override
+            public UserSearchViewModel invoke() {
+                return new UserSearchViewModel();
+            }
+        });
+
         initView();
         initViewModel();
     }
@@ -67,15 +79,35 @@ public class SearchFragment extends Fragment {
     private void initView() {
         recyclerView.setAdapter(searchRecyclerAdapter);
         setHasOptionsMenu(true);
+
+        groupProgress.setVisibility(View.GONE);
+
+        tvMessage.setVisibility(View.VISIBLE);
+        tvMessage.setText(R.string.message_search_github_repository);
     }
 
     private void initViewModel() {
+        searchViewModel.getDisposables().add(userSearchViewModel.getSearchQuerySubject()
+                .observeOn(Schedulers.io())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        searchViewModel.search(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                }));
         searchViewModel.getDisposables().add(searchViewModel.showEmptyViewSubject
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         Toast.makeText(getContext(), R.string.message_empty_view, Toast.LENGTH_SHORT).show();
+                        tvMessage.setVisibility(View.VISIBLE);
+                        tvMessage.setText(R.string.message_empty_view);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -97,42 +129,19 @@ public class SearchFragment extends Fragment {
 
                     }
                 }));
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        inflater.inflate(R.menu.menu_search, menu);
-
-        MenuItem item = menu.findItem(R.id.action_search);
-        SearchView searchView = new SearchView(((MainActivity) getContext()).getSupportActionBar().getThemedContext());
-        MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-        MenuItemCompat.setActionView(item, searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                String searchQuery = query;
-                if (query == null) {
-                    searchQuery = "";
-                }
-                searchViewModel.search(searchQuery);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                searchViewModel.search("");
-                return false;
-            }
-        });
+        searchViewModel.getDisposables().add(searchViewModel.updateProgressSubject
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) { // show progress
+                            groupProgress.setVisibility(View.VISIBLE);
+                        } else {
+                            groupProgress.setVisibility(View.GONE);
+                        }
+                    }
+                }));
     }
 
     private void showChromeTabs(String url) {
